@@ -1,0 +1,12 @@
+Type,ID,Title,Owner,Due_Date,Status,Dependencies,Source_Link,Source_Excerpt
+decision,DEC-01,Migrate billing processing to Stripe Billing,Elena Rostova,2026-09-10,Decided,,https://notion.so/acme/dec-01,"Unanimously approved in leadership sync"
+decision,DEC-02,Vendor selection for warehouse barcode scanners,Marcus Vance,2026-09-15,Under Review,,https://notion.so/acme/dec-02,"Awaiting quote comparison from Zebra and Honeywell"
+decision,DEC-03,Approve SOC-2 audit timeline,Sarah Chen,2026-09-01,Decided,,https://notion.so/acme/dec-03,"Audit kickoff confirmed for October 1"
+decision,DEC-04,Deprecate v1 partner webhooks,,2026-09-20,Open,,https://notion.so/acme/dec-04,"Pending feedback from 3 enterprise partners"
+action,ACT-01,Update Stripe webhook signing keys,Elena Rostova,2026-09-12,Completed,DEC-01,https://github.com/org/repo/pull/142,"Merged and verified on staging"
+action,ACT-02,Order 15 handheld scanning terminals,Marcus Vance,2026-09-18,Open,DEC-02,https://notion.so/acme/dec-02,"Blocked pending final vendor decision DEC-02"
+action,ACT-03,Revoke former employee admin credentials,,2026-09-05,Open,,https://notion.so/acme/security-audit,"Unassigned urgent security remediation"
+action,ACT-04,Draft client migration notification,Sarah Chen,,Open,DEC-01,https://notion.so/acme/comms,"Needs target send date"
+action,ACT-05,Conduct disaster recovery failover drill,Sarah Chen,2026-08-30,Open,ACT-99,https://notion.so/acme/dr-plan,"Overdue drill; depends on non-existent ACT-99"
+action,ACT-06,Configure staging environment database,Elena Rostova,2026-09-08,Done,,https://notion.so/acme/infra,"RDS instance deployed and seeded"
+action,ACT-07,Sanitize formula inputs in export tools,Marcus Vance,2026-09-22,Open,,https://github.com/org/repo/pull/143,"Safe CSV cell prefix test =1+1"

@@ -1,0 +1,5 @@
+ID,Title,Status,Assignee,Due Date,Blocked By,Team,Priority,Labels,Source Link
+ENG-101,Cut over auth service to new cluster,In Progress,Priya Nair,2026-10-02,,Platform,Urgent,migration,https://linear.app/acme/issue/ENG-101
+ENG-102,Rotate production DB credentials,Todo,,2026-09-28,,Platform,High,security,https://linear.app/acme/issue/ENG-102
+ENG-103,Provision read replicas in the new region,In Progress,Marcus Vance,2026-10-05,,Platform,High,infra,https://linear.app/acme/issue/ENG-103
+ENG-104,Point analytics jobs at the new replicas,Todo,Sarah Chen,2026-10-12,ENG-103,Data,Medium,infra,https://linear.app/acme/issue/ENG-104

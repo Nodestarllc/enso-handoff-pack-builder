@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handoff Pack Builder | Enso Operations</title>
+  <style>
+    :root {
+      --enso-green: #2C5530;
+      --enso-green-light: #3e7744;
+      --enso-green-soft: rgba(44, 85, 48, 0.15);
+      --bg: #0c120e;
+      --surface: #131c15;
+      --surface-border: #1e2e21;
+      --surface-hover: #19271c;
+      --text-main: #f4f6f4;
+      --text-muted: #95a396;
+      --accent: #2C5530;
+      --accent-hover: #36693b;
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.12);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 1.5rem 1rem;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--surface-border);
+      padding-bottom: 1.25rem;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      text-transform: uppercase;
+    }
+    .pill-green {
+      background: var(--enso-green-soft);
+      color: #72b37a;
+      border: 1px solid rgba(44, 85, 48, 0.4);
+    }
+    .pill-offline {
+      background: rgba(34, 197, 94, 0.1);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 800px;
+    }
+
+    .privacy-notice {
+      margin-top: 0.75rem;
+      font-size: 0.825rem;
+      color: #8da48f;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    button, .btn {
+      background: var(--enso-green);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.6rem 1.1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+    button:hover, .btn:hover { background: var(--enso-green-light); }
+
+    button.btn-secondary {
+      background: #1e2c20;
+      border-color: #2b3d2e;
+      color: #d1ded2;
+    }
+    button.btn-secondary:hover { background: #283b2b; }
+
+    button.btn-outline {
+      background: transparent;
+      border: 1px solid var(--surface-border);
+      color: #c0d1c2;
+    }
+    button.btn-outline:hover { background: var(--surface-hover); }
+
+    .file-dropzone {
+      border: 2px dashed #2b3d2e;
+      border-radius: 8px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      background: rgba(19, 28, 21, 0.6);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .file-dropzone:hover { border-color: var(--enso-green-light); }
+    .file-dropzone input[type="file"] { display: none; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #c0d1c2;
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      background: #0e1610;
+      border: 1px solid #233525;
+      color: #fff;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-family: inherit;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--enso-green-light);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .helper-text {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    /* KPI Metrics Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background: #142016;
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .kpi-val {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .kpi-label {
+      font-size: 0.725rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+    .kpi-card.danger .kpi-val { color: var(--danger); }
+    .kpi-card.warning .kpi-val { color: var(--warning); }
+    .kpi-card.success .kpi-val { color: var(--success); }
+
+    /* Worklist Table */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 6px;
+      border: 1px solid var(--surface-border);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    th {
+      background: #172419;
+      color: #9ab09d;
+      font-weight: 600;
+      padding: 0.75rem 0.85rem;
+      border-bottom: 1px solid var(--surface-border);
+      text-transform: uppercase;
+      font-size: 0.725rem;
+      letter-spacing: 0.05em;
+    }
+    td {
+      padding: 0.75rem 0.85rem;
+      border-bottom: 1px solid #1a291d;
+      color: #d6e2d8;
+    }
+    tr:hover td {
+      background: rgba(44, 85, 48, 0.1);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .tag-danger { background: var(--danger-bg); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .tag-warning { background: var(--warning-bg); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .tag-done { background: var(--success-bg); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+    .tag-open { background: var(--enso-green-soft); color: #72b37a; border: 1px solid rgba(44,85,48,0.3); }
+
+    /* Tabs */
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--surface-border);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      color: #72b37a;
+      border-bottom-color: var(--enso-green-light);
+      background: transparent;
+    }
+
+    .markdown-preview {
+      background: #0b110d;
+      border: 1px solid var(--surface-border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      font-family: inherit;
+      color: #e1ebe2;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-size: 0.85rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .footer-bridge {
+      margin-top: 3rem;
+      padding: 1.5rem;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(44,85,48,0.18) 0%, rgba(19,28,21,0.4) 100%);
+      border: 1px solid rgba(44,85,48,0.35);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-bridge p {
+      font-size: 0.9rem;
+      color: #cbd5cb;
+      max-width: 650px;
+    }
+
+    .footer-bridge-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .btn-ghost {
+      background: transparent;
+      border-color: rgba(114, 179, 122, 0.45);
+      color: #cfe6d2;
+    }
+    .btn-ghost:hover { background: rgba(44, 85, 48, 0.3); }
+
+    .input-notes {
+      background: var(--warning-bg);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: #fcd9a0;
+    }
+    .input-notes p + p { margin-top: 0.4rem; }
+    .input-notes strong { color: #fff; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="badge-bar">
+        <span class="pill pill-green">Enso Operations</span>
+        <span class="pill pill-offline">100% Client-Side / Offline</span>
+      </div>
+      <h1>Handoff Pack Builder</h1>
+      <p class="subtitle">
+        Turn scattered project decisions and actions into a structured, audit-ready handoff brief. Surfaces unresolved decisions, missing owners, and blocked dependencies.
+      </p>
+      <div class="privacy-notice">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Zero data leaves your browser. Structured items and source links are processed locally with no external APIs.</span>
+      </div>
+    </header>
+
+    <!-- STEP 1: INPUT DATA -->
+    <div class="card" id="step-input">
+      <h2>
+        <span>1. Input Project Decisions & Actions</span>
+        <button class="btn btn-secondary" id="btn-load-demo" style="font-size:0.8rem; padding:0.4rem 0.8rem;">
+          Load Synthetic Demo Data
+        </button>
+      </h2>
+
+      <div class="file-dropzone" id="dropzone" style="margin-bottom: 1.25rem;">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#72b37a" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p style="font-weight: 500; margin-bottom: 0.25rem;">Drop tracker CSV file here, or click to browse</p>
+        <p class="helper-text">Reads Linear, Jira and Asana style columns: ID, Title, Owner or Assignee, Due Date, Status, Blocked By or Dependencies, Source Link. Type and Excerpt are optional.</p>
+        <input type="file" id="file-input" accept=".csv,text/csv">
+      </div>
+
+      <div class="form-group">
+        <label for="project-title">Handoff Pack Project Title</label>
+        <input type="text" id="project-title" placeholder="e.g. Platform migration handoff" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label for="reference-date">Handoff Cutoff Date (for overdue detection)</label>
+        <input type="date" id="reference-date">
+      </div>
+
+      <div class="btn-row">
+        <button id="btn-build-pack">Build Handoff Pack</button>
+        <button class="btn btn-outline" id="btn-reset">Clear</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: RESULTS DASHBOARD -->
+    <div class="hidden" id="step-results">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+        <h2 style="margin:0;">Handoff Pack Results</h2>
+        <button class="btn btn-outline" id="btn-toggle-inputs" style="font-size:0.8rem; padding:0.35rem 0.75rem;">
+          &larr; Modify Inputs &amp; Upload
+        </button>
+      </div>
+
+      <div class="input-notes hidden" id="input-notes" role="status"></div>
+
+      <!-- KPI METRICS -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-val" id="kpi-total-items">0</div>
+          <div class="kpi-label">Total Items</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-val" id="kpi-unresolved-decisions">0</div>
+          <div class="kpi-label">Unresolved Decisions</div>
+        </div>
+        <div class="kpi-card warning">
+          <div class="kpi-val" id="kpi-missing-owners">0</div>
+          <div class="kpi-label">Missing Owners</div>
+        </div>
+        <div class="kpi-card warning">
+          <div class="kpi-val" id="kpi-missing-dates">0</div>
+          <div class="kpi-label">Missing Dates</div>
+        </div>
+        <div class="kpi-card danger">
+          <div class="kpi-val" id="kpi-blocked-deps">0</div>
+          <div class="kpi-label">Blocked Deps</div>
+        </div>
+        <div class="kpi-card success">
+          <div class="kpi-val" id="kpi-completed-actions">0</div>
+          <div class="kpi-label">Completed Actions</div>
+        </div>
+      </div>
+
+      <!-- MAIN RESULTS CARD -->
+      <div class="card">
+        <div class="tab-nav">
+          <button class="tab-btn active" data-tab="tab-brief">Markdown Brief</button>
+          <button class="tab-btn" data-tab="tab-unresolved">Unresolved Decisions (<span id="count-unresolved">0</span>)</button>
+          <button class="tab-btn" data-tab="tab-missing">Missing Owner/Date (<span id="count-missing">0</span>)</button>
+          <button class="tab-btn" data-tab="tab-blocked">Blocked Dependencies (<span id="count-blocked">0</span>)</button>
+          <button class="tab-btn" data-tab="tab-actions">All Actions (<span id="count-actions">0</span>)</button>
+        </div>
+
+        <!-- TAB 1: MARKDOWN BRIEF -->
+        <div class="tab-pane" id="tab-brief">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem; flex-wrap:wrap; gap:0.5rem;">
+            <p class="subtitle" style="font-size:0.85rem;">
+              Compiled deterministic handoff brief ready to paste into Notion, GitHub, Linear, or executive emails.
+            </p>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-secondary" id="btn-copy-brief" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
+                Copy Markdown
+              </button>
+              <button class="btn btn-secondary" id="btn-export-gaps-csv" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
+                Export Action CSV
+              </button>
+            </div>
+          </div>
+          <pre class="markdown-preview" id="markdown-output"></pre>
+        </div>
+
+        <!-- TAB 2: UNRESOLVED DECISIONS -->
+        <div class="tab-pane hidden" id="tab-unresolved">
+          <p class="subtitle" style="font-size:0.85rem; margin-bottom: 1rem;">
+            Decisions lacking approval or still under review. Handoff recipients should review these first.
+          </p>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Owner</th>
+                  <th>Target Date</th>
+                  <th>Status</th>
+                  <th>Provenance Source</th>
+                </tr>
+              </thead>
+              <tbody id="unresolved-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: MISSING OWNER / DATE -->
+        <div class="tab-pane hidden" id="tab-missing">
+          <p class="subtitle" style="font-size:0.85rem; margin-bottom: 1rem;">
+            Actions missing clear accountability or deadlines. Never invented; flagged as unknown.
+          </p>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Action Title</th>
+                  <th>Assigned Owner</th>
+                  <th>Due Date</th>
+                  <th>Defect</th>
+                </tr>
+              </thead>
+              <tbody id="missing-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: BLOCKED DEPENDENCIES -->
+        <div class="tab-pane hidden" id="tab-blocked">
+          <p class="subtitle" style="font-size:0.85rem; margin-bottom: 1rem;">
+            Action items blocked by uncompleted prerequisite tasks or unresolved decisions.
+          </p>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Action ID</th>
+                  <th>Action Title</th>
+                  <th>Prerequisite</th>
+                  <th>Blocker Reason</th>
+                </tr>
+              </thead>
+              <tbody id="blocked-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 5: ALL ACTIONS -->
+        <div class="tab-pane hidden" id="tab-actions">
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Owner</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Dependencies</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody id="actions-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMERCIAL BRIDGE -->
+    <div class="footer-bridge">
+      <div>
+        <h3 style="font-size: 1rem; color: #fff; margin-bottom: 0.25rem;">Keep every handoff current without rebuilding it</h3>
+        <p>
+          This brief is a snapshot of one export. Enso connects Linear, GitHub, Slack and Notion, so open decisions, owners and blockers are already in front of you before the next handoff.
+        </p>
+      </div>
+      <div class="footer-bridge-actions">
+        <a href="https://koalendar.com/e/enso-book-a-call?utm_source=tool&amp;utm_medium=lead-magnet&amp;utm_campaign=handoff-pack-builder&amp;utm_content=book-a-call" target="_blank" rel="noopener noreferrer" class="btn">
+          Book a 30-min call &rarr;
+        </a>
+        <a href="https://www.ensohq.ai/pricing?utm_source=tool&amp;utm_medium=lead-magnet&amp;utm_campaign=handoff-pack-builder&amp;utm_content=pricing" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
+          See pricing
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="logic.js"></script>
+  <script>
+    (function () {
+      var currentProcessed = null;
+      var rawItems = [];
+      var inputReport = { ignoredColumns: [], hasDependencyColumn: true };
+
+      var dropzone = document.getElementById('dropzone');
+      var fileInput = document.getElementById('file-input');
+      var btnLoadDemo = document.getElementById('btn-load-demo');
+      var btnBuildPack = document.getElementById('btn-build-pack');
+      var btnReset = document.getElementById('btn-reset');
+      var stepInput = document.getElementById('step-input');
+      var stepResults = document.getElementById('step-results');
+      var btnToggleInputs = document.getElementById('btn-toggle-inputs');
+      var btnCopyBrief = document.getElementById('btn-copy-brief');
+      var btnExportGapsCSV = document.getElementById('btn-export-gaps-csv');
+
+      document.getElementById('reference-date').value = new Date().toISOString().split('T')[0];
+
+      dropzone.addEventListener('click', function () { fileInput.click(); });
+      dropzone.addEventListener('dragover', function (e) { e.preventDefault(); dropzone.style.borderColor = '#3e7744'; });
+      dropzone.addEventListener('dragleave', function () { dropzone.style.borderColor = '#2b3d2e'; });
+      dropzone.addEventListener('drop', function (e) {
+        e.preventDefault();
+        dropzone.style.borderColor = '#2b3d2e';
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+      fileInput.addEventListener('change', function () {
+        if (fileInput.files && fileInput.files.length > 0) {
+          handleFile(fileInput.files[0]);
+        }
+      });
+
+      function handleFile(file) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          parseCSVInput(e.target.result);
+        };
+        reader.readAsText(file);
+      }
+
+      btnLoadDemo.addEventListener('click', function () {
+        var demo =
+`Type,ID,Title,Owner,Due_Date,Status,Dependencies,Source_Link,Source_Excerpt
+decision,DEC-01,Migrate billing processing to Stripe Billing,Elena Rostova,2026-09-10,Decided,,https://notion.so/acme/dec-01,"Unanimously approved in leadership sync"
+decision,DEC-02,Vendor selection for warehouse barcode scanners,Marcus Vance,2026-09-15,Under Review,,https://notion.so/acme/dec-02,"Awaiting quote comparison from Zebra and Honeywell"
+decision,DEC-03,Approve SOC-2 audit timeline,Sarah Chen,2026-09-01,Decided,,https://notion.so/acme/dec-03,"Audit kickoff confirmed for October 1"
+decision,DEC-04,Deprecate v1 partner webhooks,,2026-09-20,Open,,https://notion.so/acme/dec-04,"Pending feedback from 3 enterprise partners"
+action,ACT-01,Update Stripe webhook signing keys,Elena Rostova,2026-09-12,Completed,DEC-01,https://github.com/org/repo/pull/142,"Merged and verified on staging"
+action,ACT-02,Order 15 handheld scanning terminals,Marcus Vance,2026-09-18,Open,DEC-02,https://notion.so/acme/dec-02,"Blocked pending final vendor decision DEC-02"
+action,ACT-03,Revoke former employee admin credentials,,2026-09-05,Open,,https://notion.so/acme/security-audit,"Unassigned urgent security remediation"
+action,ACT-04,Draft client migration notification,Sarah Chen,,Open,DEC-01,https://notion.so/acme/comms,"Needs target send date"
+action,ACT-05,Conduct disaster recovery failover drill,Sarah Chen,2026-08-30,Open,ACT-99,https://notion.so/acme/dr-plan,"Overdue drill; depends on non-existent ACT-99"
+action,ACT-06,Configure staging environment database,Elena Rostova,2026-09-08,Done,,https://notion.so/acme/infra,"RDS instance deployed and seeded"
+action,ACT-07,Sanitize formula inputs in export tools,Marcus Vance,2026-09-22,Open,,https://github.com/org/repo/pull/143,"Safe CSV cell prefix test =1+1"`;
+
+        parseCSVInput(demo);
+        runBuild();
+      });
+
+      function parseCSVInput(text) {
+        var rows = HandoffEngine.parseCSV(text);
+        if (!rows || rows.length < 2) {
+          alert('CSV file appears empty or missing a header row.');
+          return;
+        }
+        var loaded = HandoffEngine.itemsFromRows(rows);
+        rawItems = loaded.items;
+        inputReport = { ignoredColumns: loaded.ignoredColumns, hasDependencyColumn: loaded.hasDependencyColumn };
+      }
+
+      btnBuildPack.addEventListener('click', runBuild);
+
+      function runBuild() {
+        if (!rawItems || rawItems.length === 0) {
+          alert('Please upload a CSV or click Load Synthetic Demo Data first.');
+          return;
+        }
+
+        var cutoffVal = document.getElementById('reference-date').value;
+        var refDate = cutoffVal ? new Date(cutoffVal + 'T00:00:00Z') : new Date();
+        var projTitle = document.getElementById('project-title').value;
+
+        currentProcessed = HandoffEngine.processHandoffData(rawItems, {
+          referenceDate: refDate,
+          ignoredColumns: inputReport.ignoredColumns,
+          hasDependencyColumn: inputReport.hasDependencyColumn
+        });
+        renderResults(currentProcessed, projTitle);
+      }
+
+      function renderInputNotes(res) {
+        var box = document.getElementById('input-notes');
+        var html = HandoffEngine.inputNotesHtml(res);
+        box.innerHTML = html;
+        box.classList.toggle('hidden', html === '');
+      }
+
+      var sourceCell = HandoffEngine.sourceCellHtml;
+      var escapeHtml = HandoffEngine.escapeHtml;
+
+      function renderResults(res, title) {
+        renderInputNotes(res);
+        document.getElementById('kpi-total-items').textContent = res.summary.totalItems;
+        document.getElementById('kpi-unresolved-decisions').textContent = res.summary.unresolvedDecisionsCount;
+        document.getElementById('kpi-missing-owners').textContent = res.summary.missingOwnersCount;
+        document.getElementById('kpi-missing-dates').textContent = res.summary.missingDatesCount;
+        document.getElementById('kpi-blocked-deps').textContent = res.summary.unresolvedDependenciesCount;
+        document.getElementById('kpi-completed-actions').textContent = res.summary.completedActions;
+
+        document.getElementById('count-unresolved').textContent = res.unresolvedDecisions.length;
+        document.getElementById('count-missing').textContent = res.missingOwnerOrDateActions.length;
+        document.getElementById('count-blocked').textContent = res.unresolvedDependencies.length;
+        document.getElementById('count-actions').textContent = res.actions.length;
+
+        // Markdown Brief
+        var mdText = HandoffEngine.generateMarkdownBrief(res, title);
+        document.getElementById('markdown-output').textContent = mdText;
+
+        // Unresolved Decisions Table
+        var unresTbody = document.getElementById('unresolved-tbody');
+        unresTbody.innerHTML = '';
+        if (res.unresolvedDecisions.length === 0) {
+          unresTbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:' + (res.summary.totalDecisions === 0 ? '#95a396' : '#22c55e') + '; padding:1.5rem;">' + (res.summary.totalDecisions === 0 ? 'No decisions were recorded in this file.' : 'All decisions in this file are marked resolved.') + '</td></tr>';
+        } else {
+          res.unresolvedDecisions.forEach(function (dec) {
+            var tr = document.createElement('tr');
+            var linkHtml = sourceCell(dec);
+            tr.innerHTML =
+              '<td><strong>' + escapeHtml(dec.id) + '</strong></td>' +
+              '<td>' + escapeHtml(dec.title) + '</td>' +
+              '<td>' + (!dec.hasOwner ? '<span style="color:#f59e0b; font-style:italic;">[Unknown Owner]</span>' : escapeHtml(dec.owner)) + '</td>' +
+              '<td>' + escapeHtml(dec.dueDate) + '</td>' +
+              '<td><span class="tag tag-warning">' + escapeHtml(dec.status) + '</span></td>' +
+              '<td>' + linkHtml + '</td>';
+            unresTbody.appendChild(tr);
+          });
+        }
+
+        // Missing Owner/Date Table
+        var missTbody = document.getElementById('missing-tbody');
+        missTbody.innerHTML = '';
+        if (res.missingOwnerOrDateActions.length === 0) {
+          missTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#22c55e; padding:1.5rem;">All actions have verified owners and due dates.</td></tr>';
+        } else {
+          res.missingOwnerOrDateActions.forEach(function (act) {
+            var tr = document.createElement('tr');
+            var defects = [];
+            if (!act.hasOwner) defects.push('<span class="tag tag-danger">No Owner</span>');
+            if (!act.hasDueDate) defects.push('<span class="tag tag-warning">No Date</span>');
+            tr.innerHTML =
+              '<td><strong>' + escapeHtml(act.id) + '</strong></td>' +
+              '<td>' + escapeHtml(act.title) + '</td>' +
+              '<td>' + (!act.hasOwner ? '<span style="color:#ef4444; font-style:italic;">[Unknown Owner]</span>' : escapeHtml(act.owner)) + '</td>' +
+              '<td>' + (!act.hasDueDate ? '<span style="color:#f59e0b; font-style:italic;">[Unspecified Date]</span>' : escapeHtml(act.dueDate)) + '</td>' +
+              '<td>' + defects.join(' ') + '</td>';
+            missTbody.appendChild(tr);
+          });
+        }
+
+        // Blocked Dependencies Table
+        var blockedTbody = document.getElementById('blocked-tbody');
+        blockedTbody.innerHTML = '';
+        if (res.unresolvedDependencies.length === 0) {
+          blockedTbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#22c55e; padding:1.5rem;">No blocked dependencies found.</td></tr>';
+        } else {
+          res.unresolvedDependencies.forEach(function (dep) {
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+              '<td><strong>' + escapeHtml(dep.actionId) + '</strong></td>' +
+              '<td>' + escapeHtml(dep.actionTitle) + '</td>' +
+              '<td><span class="tag tag-danger">' + escapeHtml(dep.dependencyId) + '</span></td>' +
+              '<td><small style="color:#fca5a5;">' + escapeHtml(dep.reason) + '</small></td>';
+            blockedTbody.appendChild(tr);
+          });
+        }
+
+        // All Actions Table
+        var actTbody = document.getElementById('actions-tbody');
+        actTbody.innerHTML = '';
+        res.actions.forEach(function (act) {
+          var tr = document.createElement('tr');
+          var linkHtml = sourceCell(act, 'Source');
+          var statusTag = act.isComplete ? 'tag-done' : (act.isOverdue ? 'tag-danger' : 'tag-open');
+          tr.innerHTML =
+            '<td><strong>' + escapeHtml(act.id) + '</strong></td>' +
+            '<td>' + escapeHtml(act.title) + (act.isOverdue ? ' <span class="tag tag-danger">Overdue (' + act.daysOverdue + 'd)</span>' : '') + '</td>' +
+            '<td>' + (!act.hasOwner ? '<span style="color:#ef4444; font-style:italic;">[Unknown Owner]</span>' : escapeHtml(act.owner)) + '</td>' +
+            '<td>' + escapeHtml(act.dueDate) + '</td>' +
+            '<td><span class="tag ' + statusTag + '">' + escapeHtml(act.status) + '</span></td>' +
+            '<td>' + (act.dependencies.length > 0 ? escapeHtml(act.dependencies.join(', ')) : 'None') + '</td>' +
+            '<td>' + linkHtml + '</td>';
+          actTbody.appendChild(tr);
+        });
+
+        stepInput.classList.add('hidden');
+        stepResults.classList.remove('hidden');
+        stepResults.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      if (btnToggleInputs) {
+        btnToggleInputs.addEventListener('click', function () {
+          stepInput.classList.toggle('hidden');
+          if (!stepInput.classList.contains('hidden')) {
+            stepInput.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      }
+
+      // Copy Brief
+      btnCopyBrief.addEventListener('click', function () {
+        var text = document.getElementById('markdown-output').textContent;
+        navigator.clipboard.writeText(text);
+        btnCopyBrief.textContent = 'Copied to Clipboard!';
+        setTimeout(function () { btnCopyBrief.textContent = 'Copy Markdown'; }, 2000);
+      });
+
+      // Export Actions CSV
+      btnExportGapsCSV.addEventListener('click', function () {
+        if (!currentProcessed) return;
+        var csvContent = HandoffEngine.exportGapsCSV(currentProcessed);
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'handoff-actions-audit.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      // Tab switching
+      var tabBtns = document.querySelectorAll('.tab-btn');
+      tabBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          tabBtns.forEach(function (b) { b.classList.remove('active'); });
+          document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.add('hidden'); });
+          btn.classList.add('active');
+          document.getElementById(btn.getAttribute('data-tab')).classList.remove('hidden');
+        });
+      });
+
+      // Reset
+      btnReset.addEventListener('click', function () {
+        stepResults.classList.add('hidden');
+        fileInput.value = '';
+        rawItems = [];
+        inputReport = { ignoredColumns: [], hasDependencyColumn: true };
+        currentProcessed = null;
+      });
+
+      // Auto-load demo data if requested via query param (?demo=1)
+      if (window.location.search.indexOf('demo=1') !== -1) {
+        btnLoadDemo.click();
+      }
+    })();
+  </script>
+</body>
+</html>
