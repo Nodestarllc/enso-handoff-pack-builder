@@ -25,9 +25,7 @@ Project handoffs fail when context is scattered across meetings, pull requests, 
 
 ## Privacy and local processing
 
-- **Local brief**: CSV parsing, handoff analysis, Markdown generation and downloads run in your browser. Project notes, source links, task titles and team member names are not sent to Enso.
-- **Optional follow-up**: On the Enso-hosted page, a separate form sends your email and the page's UTM tags to Enso through its existing waitlist API only when submitted. It does not send or email the brief.
-- **Offline use**: Brief generation and downloads work offline. The follow-up form requires the Enso-hosted `/api/waitlist` endpoint; a standalone copy cannot submit it.
+CSV parsing, handoff analysis, Markdown generation and downloads run in your browser. Project notes, source links, task titles and team member names are not sent to Enso. Brief generation and downloads work offline.
 
 ## Architecture
 
@@ -41,7 +39,7 @@ The canonical source is `growth-ops/magnets/handoff-pack-builder`. The Enso mark
 
 ## How to Run
 
-Open `index.html` in a browser with `logic.js` beside it, or use the live tool above. Click "Load Synthetic Demo Data" to see a brief without uploading a file. The optional follow-up form works only on the Enso-hosted page.
+Open `index.html` in a browser with `logic.js` beside it, or use the live tool above. Click "Load Synthetic Demo Data" to see a brief without uploading a file. Copy or download the Markdown brief when it is ready.
 
 ## Running Tests
 
