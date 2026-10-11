@@ -2,7 +2,7 @@
 
 **Live tool: https://www.ensohq.ai/tools/handoff-pack-builder**
 
-![Handoff brief built from the synthetic demo data](docs/screenshot.png)
+![Handoff brief built from the synthetic demo data](https://raw.githubusercontent.com/Nodestarllc/enso-handoff-pack-builder/main/docs/screenshot.png)
 
 A focused, browser-based operations utility for engineering managers, operations leads, and project owners to assemble audit-ready handoff briefs, identify unresolved decisions, flag unowned tasks, and surface blocked dependencies.
 
@@ -23,11 +23,11 @@ Project handoffs fail when context is scattered across meetings, pull requests, 
 5. **Audit-Ready Markdown Brief**: Generates a structured brief with executive summary, decision logs with provenance links, blocked dependencies, and checklist tables.
 6. **Safe CSV Export**: Exports action audits with formula injection defenses (prefixes cells starting with `=, +, -, @` with single quotes).
 
-## Privacy
+## Privacy and local processing
 
-- All parsing and validation run in your browser. No project notes, links, task titles, or team member names are sent to any server.
-- The page makes no network requests with your data and loads no analytics script of its own.
-- Opened from a file, it works offline.
+- **Local brief**: CSV parsing, handoff analysis, Markdown generation and downloads run in your browser. Project notes, source links, task titles and team member names are not sent to Enso.
+- **Optional follow-up**: On the Enso-hosted page, a separate form sends your email and the page's UTM tags to Enso through its existing waitlist API only when submitted. It does not send or email the brief.
+- **Offline use**: Brief generation and downloads work offline. The follow-up form requires the Enso-hosted `/api/waitlist` endpoint; a standalone copy cannot submit it.
 
 ## Architecture
 
@@ -37,13 +37,15 @@ Project handoffs fail when context is scattered across meetings, pull requests, 
 - `demo-data.csv`: Synthetic demo dataset for testing.
 - `fixtures/`: Linear-style export used by the regression tests.
 
+The canonical source is `growth-ops/magnets/handoff-pack-builder`. The Enso marketing site generates its hosted copy with `scripts/sync-tool.mjs`; `pnpm tools:check` detects drift. The [public repository](https://github.com/Nodestarllc/enso-handoff-pack-builder) mirrors the source.
+
 ## How to Run
 
-Open `index.html` in any browser (keep `logic.js` next to it), or use the live tool linked above. Click "Load Synthetic Demo Data" to see it work without your own file.
+Open `index.html` in a browser with `logic.js` beside it, or use the live tool above. Click "Load Synthetic Demo Data" to see a brief without uploading a file. The optional follow-up form works only on the Enso-hosted page.
 
 ## Running Tests
 
-Requires Node 18 or later. There are no dependencies to install.
+Run the test suite using Node.js 18 or later. No dependencies are required:
 
 ```bash
 node test.js

@@ -171,7 +171,7 @@
       margin-bottom: 0.35rem;
     }
 
-    input[type="text"], input[type="date"], textarea {
+    input[type="text"], input[type="email"], input[type="date"], textarea {
       width: 100%;
       background: #0e1610;
       border: 1px solid #233525;
@@ -365,7 +365,7 @@
     <header>
       <div class="badge-bar">
         <span class="pill pill-green">Enso Operations</span>
-        <span class="pill pill-offline">100% Client-Side / Offline</span>
+        <span class="pill pill-offline">Brief built in your browser</span>
       </div>
       <h1>Handoff Pack Builder</h1>
       <p class="subtitle">
@@ -373,7 +373,7 @@
       </p>
       <div class="privacy-notice">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span>Zero data leaves your browser. Structured items and source links are processed locally with no external APIs.</span>
+        <span>Your CSV and brief stay in your browser. The optional follow-up form sends your email and page attribution to Enso only if you submit it.</span>
       </div>
     </header>
 
@@ -468,6 +468,9 @@
               <button class="btn btn-secondary" id="btn-copy-brief" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
                 Copy Markdown
               </button>
+              <button class="btn btn-secondary" id="btn-download-brief" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
+                Download Markdown
+              </button>
               <button class="btn btn-secondary" id="btn-export-gaps-csv" style="font-size:0.825rem; padding:0.4rem 0.8rem;">
                 Export Action CSV
               </button>
@@ -559,6 +562,19 @@
           </div>
         </div>
       </div>
+      <div class="card" aria-labelledby="followup-heading">
+        <h2 id="followup-heading">Want to improve the next handoff?</h2>
+        <p class="subtitle" style="margin-bottom:1rem;">Request a follow-up from Enso. Your brief is available above; we do not receive or email its contents.</p>
+        <form id="followup-form">
+          <label for="followup-email">Work email</label>
+          <div class="btn-row" style="margin-top:0;">
+            <input id="followup-email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@company.com" style="max-width:360px;" />
+            <button type="submit" id="followup-submit">Request follow-up</button>
+          </div>
+          <p class="subtitle" style="font-size:0.8rem; margin-top:0.6rem;">By submitting, you ask Enso to contact you about handoffs. We send your email and this page's campaign tags. <a href="/privacy" target="_blank" rel="noopener noreferrer" style="color:#a4d4a9;">Privacy policy</a></p>
+          <p id="followup-status" role="status" aria-live="polite" style="margin-top:0.6rem;"></p>
+        </form>
+      </div>
     </div>
 
     <!-- COMMERCIAL BRIDGE -->
@@ -596,7 +612,11 @@
       var stepResults = document.getElementById('step-results');
       var btnToggleInputs = document.getElementById('btn-toggle-inputs');
       var btnCopyBrief = document.getElementById('btn-copy-brief');
+      var btnDownloadBrief = document.getElementById('btn-download-brief');
       var btnExportGapsCSV = document.getElementById('btn-export-gaps-csv');
+      var followupForm = document.getElementById('followup-form');
+      var followupStatus = document.getElementById('followup-status');
+      var followupSubmit = document.getElementById('followup-submit');
 
       document.getElementById('reference-date').value = new Date().toISOString().split('T')[0];
 
@@ -800,6 +820,48 @@ action,ACT-07,Sanitize formula inputs in export tools,Marcus Vance,2026-09-22,Op
         setTimeout(function () { btnCopyBrief.textContent = 'Copy Markdown'; }, 2000);
       });
 
+      btnDownloadBrief.addEventListener('click', function () {
+        var text = document.getElementById('markdown-output').textContent;
+        var blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = 'handoff-brief.md';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      });
+
+      followupForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        var email = document.getElementById('followup-email').value.trim();
+        if (!followupForm.reportValidity()) return;
+        var search = new URLSearchParams(window.location.search);
+        var campaign = {};
+        ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (key) {
+          var value = search.get(key);
+          if (value) campaign[key] = value;
+        });
+        followupSubmit.disabled = true;
+        followupStatus.textContent = 'Sending request…';
+        try {
+          var response = await fetch('/api/waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, source: 'handoff-pack-builder', campaign: campaign })
+          });
+          var result = await response.json().catch(function () { return null; });
+          if (!response.ok) throw new Error(result && result.error || 'Could not send your request. Please try again.');
+          followupStatus.textContent = 'Request received. Enso has your email for follow-up.';
+          followupForm.reset();
+        } catch (error) {
+          followupStatus.textContent = error.message || 'Could not send your request. Please try again.';
+        } finally {
+          followupSubmit.disabled = false;
+        }
+      });
+
       // Export Actions CSV
       btnExportGapsCSV.addEventListener('click', function () {
         if (!currentProcessed) return;
@@ -828,6 +890,7 @@ action,ACT-07,Sanitize formula inputs in export tools,Marcus Vance,2026-09-22,Op
       // Reset
       btnReset.addEventListener('click', function () {
         stepResults.classList.add('hidden');
+        followupStatus.textContent = '';
         fileInput.value = '';
         rawItems = [];
         inputReport = { ignoredColumns: [], hasDependencyColumn: true };
