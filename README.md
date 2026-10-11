@@ -25,7 +25,7 @@ Project handoffs fail when context is scattered across meetings, pull requests, 
 
 ## Privacy and local processing
 
-CSV parsing, handoff analysis, Markdown generation and downloads run in your browser. Project notes, source links, task titles and team member names are not sent to Enso. Brief generation and downloads work offline.
+CSV parsing, handoff analysis, Markdown generation and downloads run in your browser. Project notes, source links, task titles and team member names are not sent to Enso. Brief generation and downloads work offline. On ensohq.ai, the optional form submits only a consented email and campaign tags to the owned `/api/tools/handoff-lead` endpoint. Enso stores that capture and sends an inbox notification and visitor confirmation. The form is hidden in standalone copies. The brief is not submitted or emailed.
 
 ## Architecture
 
